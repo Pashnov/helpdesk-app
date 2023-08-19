@@ -1,4 +1,4 @@
-package org.axp;
+package org.axp.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 

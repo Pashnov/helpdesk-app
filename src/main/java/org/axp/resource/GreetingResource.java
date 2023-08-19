@@ -1,16 +1,17 @@
-package org.axp;
+package org.axp.resource;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.axp.service.GreetingService;
 
 @Path("/hello")
 public class GreetingResource {
 
     @Inject
-    private GreetingService service;
+    GreetingService service;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)

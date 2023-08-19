@@ -1,9 +1,11 @@
 package org.axp.logic;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.axp.entity.Ticket;
 import org.axp.entity.User;
 import org.axp.entity.User.Role;
 
+@ApplicationScoped
 public class Action {
 
     public void createTicket(User createdByUser, String description, Ticket.Priority priority) {

@@ -1,19 +1,37 @@
 package org.axp.entity;
 
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
+@Entity
+@PropertyStrategy(mutable = false)
 public class User {
 
-    private int userId;
-    private String username;
-    private String email;
-    private Role role;
+    @PartitionKey
+    private final UUID userId;
 
-    // Constructor, getters, and setters.
+    @ClusteringColumn
+    private final String username;
+    private final String email;
+    private final Role role;
 
     public enum Role {
         CUSTOMER, AGENT, ADMIN, SUPERUSER;
+
+        public static Role findByName(String roleName) {
+            for (Role role : values()) {
+                if (role.name().equalsIgnoreCase(roleName)) {
+                    return role;
+                }
+            }
+            throw new IllegalArgumentException("There is no such role: " + roleName);
+        }
     }
 
     /*
