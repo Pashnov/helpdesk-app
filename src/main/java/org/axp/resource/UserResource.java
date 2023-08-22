@@ -34,12 +34,12 @@ public class UserResource {
 
     @PUT
     public void update(UserDto user) {
-        userService.save(user);
+        userService.update(user);
     }
 
     @DELETE
     public void delete(UserDto user) {
-        userService.save(user);
+        userService.delete(user);
     }
 
 }

@@ -1,6 +1,7 @@
 package org.axp.entity;
 
 import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
@@ -14,7 +15,8 @@ import java.util.UUID;
 public class User {
 
     @PartitionKey
-    private final UUID userId;
+    @CqlName("user_id")
+    private final UUID id;
 
     @ClusteringColumn
     private final String username;
@@ -22,16 +24,7 @@ public class User {
     private final Role role;
 
     public enum Role {
-        CUSTOMER, AGENT, ADMIN, SUPERUSER;
-
-        public static Role findByName(String roleName) {
-            for (Role role : values()) {
-                if (role.name().equalsIgnoreCase(roleName)) {
-                    return role;
-                }
-            }
-            throw new IllegalArgumentException("There is no such role: " + roleName);
-        }
+        CUSTOMER, AGENT, ADMIN, SUPERUSER
     }
 
     /*

@@ -6,27 +6,29 @@ import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
 import com.datastax.oss.driver.api.mapper.annotations.Update;
-import org.axp.entity.User;
+import org.axp.entity.Project;
 
-import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 @Dao
-public interface UserDao {
+public interface ProjectDao {
 
     @Update
-    void update(User User);
+    void update(Project project);
 
     @Select
-    PagingIterable<User> findAll();
+    PagingIterable<Project> findAll();
 
     @Select
-    CompletionStage<User> findByIdAsync(UUID userId);
+    Project findById(String projectId);
+
+    @Select
+    CompletionStage<Project> findByIdAsync(String projectId);
 
     @Insert
-    void save(User user);
+    void save(Project project);
 
     @Delete(ifExists = true)
-    boolean delete(User user);
+    boolean delete(Project project);
 
 }

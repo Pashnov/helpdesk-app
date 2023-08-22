@@ -6,18 +6,23 @@ import org.axp.rest.UserDto;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 @ApplicationScoped
 public class UserTransformer {
 
     public UserDto transform(User user) {
-        return new UserDto(user.getUsername(), user.getEmail(), user.getUserId().toString(), user.getRole().name());
+        return new UserDto(user.getId().toString(), user.getUsername(), user.getEmail(), user.getRole().name());
     }
 
     public User transform(UserDto dto) {
-        UUID userId = Objects.nonNull(dto.getUserId()) ? UUID.fromString(dto.getUserId()) : UUID.randomUUID();
-        User.Role role = User.Role.findByName(dto.getRole());;
+        var userId = Objects.nonNull(dto.getId()) ? UUID.fromString(dto.getId()) : UUID.randomUUID();
+        var role = Objects.nonNull(dto.getRole()) ? User.Role.valueOf(dto.getRole()) : null ;
         return new User(userId, dto.getUsername(), dto.getEmail(), role);
+    }
+
+    public CompletionStage<UserDto> transform(CompletionStage<User> asyncUser) {
+        return asyncUser.thenApply(this::transform);
     }
 
 }

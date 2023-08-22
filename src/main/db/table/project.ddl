@@ -1,6 +1,6 @@
-CREATE TABLE IF NOT EXISTS helpdesk.user
+CREATE TABLE IF NOT EXISTS helpdesk.project
 (
-    projectId   uuid,
-    name text,
-    PRIMARY KEY ((projectId), name)
+    project_id text,
+    name       text,
+    PRIMARY KEY (project_id)
 );

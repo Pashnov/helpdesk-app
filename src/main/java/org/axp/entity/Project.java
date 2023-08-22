@@ -1,16 +1,21 @@
 package org.axp.entity;
 
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
 import lombok.Data;
 
-import java.util.Map;
-import java.util.UUID;
-
 @Data
+@Entity
+@PropertyStrategy(mutable = false)
 public class Project {
 
-    private UUID projectId;
-    private String name;
+    @PartitionKey
+    @CqlName("project_id")
+    private final String id;
+    private final String name;
     // Project-specific configuration data.
-    private Map<String, String> configuration;
+//    private Map<String, String> configuration;
 
 }
