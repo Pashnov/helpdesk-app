@@ -1,5 +1,6 @@
 package org.axp.transformer;
 
+import io.quarkus.runtime.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
@@ -37,13 +38,13 @@ public class TicketTransformer {
             return null;
         }
         CompletionStage<ProjectDto> projectAsync = projectService.getById(ticket.getProjectId());
-        CompletionStage<UserDto> createdUserAsync = userService.getById(ticket.getCreatedByUser());
-        CompletionStage<UserDto> assignedUserAsync = userService.getById(ticket.getAssignedToUser());
+        CompletionStage<UserDto> createdUserAsync = userService.getById(ticket.getReporterUser());
+        CompletionStage<UserDto> assignedUserAsync = userService.getById(ticket.getAssigneeUser());
         TicketStatusDto statusDto = statusService.getById(ticket.getStatusId());
 
-        ProjectDto projectDto = projectAsync.toCompletableFuture().get(10, SECONDS);
-        UserDto createdUserDto = createdUserAsync.toCompletableFuture().get(10, SECONDS);
-        UserDto assignedUserDto = assignedUserAsync.toCompletableFuture().get(10, SECONDS);
+        ProjectDto projectDto = projectAsync.toCompletableFuture().get(5, SECONDS);
+        UserDto createdUserDto = createdUserAsync.toCompletableFuture().get(5, SECONDS);
+        UserDto assignedUserDto = assignedUserAsync.toCompletableFuture().get(5, SECONDS);
 
         return new TicketDto(projectDto, ticket.getId(), ticket.getName(),
                 ticket.getDescription(), ticket.isActive(), ticket.getDateSubmitted(),
@@ -52,8 +53,9 @@ public class TicketTransformer {
 
     public Ticket transform(TicketDto dto) {
         Ticket.Priority priority = Ticket.Priority.valueOf(dto.getPriority());
-        UUID createdByUserId = UUID.fromString(dto.getCreatedByUser().getId());
-        UUID assignedToUserId = UUID.fromString(dto.getAssignedToUser().getId());
+        UUID createdByUserId = UUID.fromString(dto.getReporterUser().getId());
+        UUID assignedToUserId = Objects.isNull(dto.getAssigneeUser()) || StringUtil.isNullOrEmpty(dto.getAssigneeUser().getId())
+                                                ? null : UUID.fromString(dto.getAssigneeUser().getId());
         LocalDateTime ldt = Objects.requireNonNullElse(dto.getDateSubmitted(), LocalDateTime.now());
 
         return new Ticket(dto.getProject().getId(), dto.getId(), dto.getName(),

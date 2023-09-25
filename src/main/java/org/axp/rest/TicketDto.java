@@ -14,12 +14,12 @@ public class TicketDto {
 
     private final String name;
     private final String description;
-    private final boolean isActive;
+    private final boolean active;
     @Null(message = "This 'dateSubmitted' is set automatically, should be null in the request")
     private final LocalDateTime dateSubmitted;
     private final String priority; // LOW, MEDIUM, HIGH;
-    private final UserDto createdByUser;
-    private final UserDto assignedToUser;
+    private final UserDto reporterUser;
+    private final UserDto assigneeUser;
 
     private final TicketStatusDto status;
 

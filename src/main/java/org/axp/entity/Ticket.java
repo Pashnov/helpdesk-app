@@ -27,8 +27,8 @@ public class Ticket {
     private final boolean active;
     private final LocalDateTime dateSubmitted;
     private final Priority priority;
-    private final UUID createdByUser;
-    private final UUID assignedToUser;
+    private final UUID reporterUser;
+    private final UUID assigneeUser;
 
     private final int statusId; // The ID of the ticket status in the database.
 

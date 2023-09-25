@@ -29,6 +29,19 @@ public class TicketResource {
         return service.getAll();
     }
 
+    @GET
+    @Path("/projectId/{projectId}")
+    public List<TicketDto> getAllForProjectId(String projectId) {
+        List<TicketDto> allForProjectId = service.getAllForProjectId(projectId);
+        return allForProjectId;
+    }
+
+    @GET
+    @Path("/projectId/{projectId}/ticketId/{ticketId}")
+    public TicketDto getTicketByIds(String projectId, Integer ticketId) {
+        return service.getTicketByIds(projectId, ticketId);
+    }
+
     @POST
     public void add(@Valid TicketDto dto) {
         var latestForProject = service.findLatestForProject(dto.getProject().getId());

@@ -17,6 +17,9 @@ public interface TicketDao {
     @Select
     PagingIterable<Ticket> findAll();
 
+    @Select
+    PagingIterable<Ticket> findAllByProjectId(String projectId);
+
     @Select(orderBy = "ticket_id DESC")
     Ticket findByProjectIdLatestTicketByTicketId(String projectId);
 

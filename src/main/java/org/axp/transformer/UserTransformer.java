@@ -12,6 +12,9 @@ import java.util.concurrent.CompletionStage;
 public class UserTransformer {
 
     public UserDto transform(User user) {
+        if (Objects.isNull(user)) {
+            return null;
+        }
         return new UserDto(user.getId().toString(), user.getUsername(), user.getEmail(), user.getRole().name());
     }
 

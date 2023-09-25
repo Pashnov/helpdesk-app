@@ -38,7 +38,7 @@
       $scope.projectId = projectValue;
       $scope.projectName = projectName;
 
-      // console.log("$scope.projectName = " + $scope.projectName)
+      console.log("$scope.projectName = " + $scope.projectName)
 
       $scope.form = {
         name: "",
@@ -116,7 +116,7 @@
           url: '/tickets/projectId/' + $scope.projectId
         }).then(function successCallback(response) {
           $scope.tickets = response.data;
-          $scope.activeTickets = response.data.filter(ticket => ticket.active === true && ticket.assigneeUser != null);
+          $scope.activeTickets = response.data.filter(obj => obj.active !== true);
         }, function errorCallback(response) {
           console.log(response.statusText);
         });
@@ -295,7 +295,7 @@
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Project Dashboard</h1>
+        <h1 class="h2">Project Inactive Dashboard</h1>
         <button type="button" class="btn btn-lg btn-primary gap-md-3" data-bs-toggle="modal" data-bs-target="#createTicket">Create ticket</button>
 
         <!-- modal view -->
@@ -308,7 +308,7 @@
               </div>
 
               <div class="modal-body">
-                <h3>Add a ticket</h3>
+                <h3>Add a project</h3>
                 <form ng-submit="add()">
                   <div class="mb-3">
                     <label for="name" class="col-form-label">Ticket name:</label>
@@ -358,7 +358,7 @@
       </div>
 
 
-      <h2>All tickets for <span class="fw-bold text-uppercase">{{ projectName }}</span></h2>
+      <h2>All inactive tickets for <span class="fw-bold text-uppercase">{{ projectName }}</span></h2>
       <div class="table-responsive small">
 
         <table class="table table-striped table-sm">
@@ -368,7 +368,7 @@
             <th scope="col">Name</th>
             <th scope="col">Priority</th>
             <th scope="col">Assigned To User</th>
-            <th scope="col">Status</th>
+            <th scope="col">Active</th>
           </tr>
           </thead>
 
@@ -380,7 +380,7 @@
             </td>
             <td>{{ ticket.priority }}</td>
             <td>{{ ticket.assigneeUser.email }}</td>
-            <td>{{ ticket.status.name }}</td>
+            <td>{{ ticket.active }}</td>
           </tr>
           </tbody>
         </table>

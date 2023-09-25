@@ -26,7 +26,19 @@ public class TicketService {
     }
 
     public List<TicketDto> getAll() {
+        // todo:: parallel stream
         return dao.findAll().all().stream().map(transformer::transform).collect(Collectors.toList());
+    }
+
+    public List<TicketDto> getAllForProjectId(String projectId) {
+        // todo:: parallel stream
+        List<TicketDto> collect = dao.findAllByProjectId(projectId).all().stream().map(transformer::transform).collect(Collectors.toList());
+        return collect;
+    }
+
+    public TicketDto getTicketByIds(String projectId, Integer ticketId) {
+        Ticket ticket = dao.findById(projectId, ticketId);
+        return transformer.transform(ticket);
     }
 
     public TicketDto findLatestForProject(String projectId) {
@@ -44,8 +56,8 @@ public class TicketService {
 
     public TicketDto copyWithNewId(TicketDto old, int newId, boolean isActive) {
         return new TicketDto(old.getProject(), newId, old.getName(), old.getDescription(),
-                isActive, old.getDateSubmitted(), old.getPriority(), old.getCreatedByUser(),
-                old.getAssignedToUser(), old.getStatus());
+                isActive, old.getDateSubmitted(), old.getPriority(), old.getReporterUser(),
+                old.getAssigneeUser(), old.getStatus());
     }
 
 }

@@ -1,0 +1,568 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>User REST service</title>
+  <!--    <link rel="stylesheet"  href="css/bootstrap.min.css"/>-->
+  <link rel="stylesheet" href="css/bootstrap.css"/>
+  <link rel="stylesheet" href="css/dashboard.css">
+
+  <!-- Load AngularJS -->
+  <!--    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>-->
+  <!--    <script src="js/angular.min.js"></script>-->
+  <script src="js/angular.js"></script>
+  <!--  <script src="js/angular-route.js"></script>-->
+  <script src="js/bootstrap.bundle.js"></script>
+
+  <!--  <script src="js/show_modal.js"></script>-->
+
+  <style>
+      .themed-grid-col {
+          padding-top: .5rem;
+          /*padding-bottom: .75rem;*/
+          /*background-color: rgba(112.520718, 44.062154, 249.437846, .15);*/
+          /*border: 1px solid rgba(112.520718, 44.062154, 249.437846, .3);*/
+      }
+
+      /*.form-control.auto-expand {*/
+      /*  overflow: hidden;*/
+      /*  resize: none;*/
+      /*}*/
+
+      /*textarea {*/
+      /*  margin:0px 0px;*/
+      /*  padding:5px;*/
+      /*  min-height:16px;*/
+      /*  line-height:16px;*/
+      /*  width:96%;*/
+      /*  display:block;*/
+      /*  margin:0px auto;*/
+      /*}*/
+  </style>
+
+  <script type="text/javascript">
+      var app = angular.module("TicketManagement", []);
+
+      //Controller Part
+      app.controller("TicketManagementController", function ($scope, $http, $sce) {
+
+          var queryString = window.location.search;
+
+          // Parse the query string to extract the "project" parameter
+          var queryParams = new URLSearchParams(queryString);
+          var projectValue = queryParams.get('project');
+          var ticketId = queryParams.get('id');
+
+          //Initialize page with default data which is blank in this example
+          $scope.ticket = {};
+          $scope.statuses = [];
+          $scope.users = [];
+          $scope.projectId = projectValue;
+          $scope.ticketId = ticketId;
+
+          $scope.clicked = false;
+          $scope.hovering = false;
+          $scope.isReporterUserStaticShow = true;
+          $scope.reporterUserEmail = null;
+          $scope.isAssigneeUserStaticShow = true;
+          $scope.assigneeUserEmail = null;
+
+          $scope.form = {
+              name: "",
+              description: "",
+              priority: "",
+              reporterUser: {
+                  id: ""
+              },
+              assigneeUser: {
+                  id: ""
+              },
+              status: {
+                  "id": 0
+              }
+          };
+
+          //Now load the data from server
+          _refreshPageData();
+          _loadStatuses();
+          _loadUsers();
+
+          //HTTP POST methods for add ticket
+          $scope.add = function () {
+              let data = {
+                  "project": {
+                      "id": $scope.projectId
+                  },
+                  "name": $scope.form.name,
+                  "description": $scope.form.description,
+                  "isActive": true,
+                  "priority": $scope.form.priority,
+                  "reporterUser": {
+                      "id": $scope.form.reporterUser.id
+                  },
+                  "assigneeUser": {
+                      "id": $scope.form.assigneeUser.id
+                  },
+                  "status": {
+                      "id": 0
+                  }
+              };
+
+              $http({
+                  method: "PUT",
+                  url: '/tickets',
+                  data: angular.toJson(data),
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              }).then(_success, _error);
+          };
+
+          //HTTP POST methods for update ticket
+          $scope.update = function () {
+              $http({
+                  method: "PUT",
+                  url: '/tickets',
+                  data: angular.toJson($scope.ticket),
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              }).then(_success, _error);
+          };
+
+          //HTTP POST methods for delete users
+          $scope.delete = function (projectId) {
+              let data = {
+                  "id": projectId
+              };
+
+              $http({
+                  method: "DELETE",
+                  url: '/tickets',
+                  data: angular.toJson(data),
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              }).then(_success, _error);
+          };
+
+          /* Private Methods */
+
+          //HTTP GET- get all tickets collection
+          function _refreshPageData() {
+              $http({
+                  method: 'GET',
+                  url: '/tickets/projectId/' + $scope.projectId + "/ticketId/" + $scope.ticketId
+              }).then(function successCallback(response) {
+                  $scope.ticket = response.data;
+                  $scope.ticket.reporterUser = $scope.ticket.reporterUser == null ? {email: 'Unassigned...'} : $scope.ticket.reporterUser;
+                  $scope.ticket.assigneeUser = $scope.ticket.assigneeUser == null ? {email: 'Unassigned...'} : $scope.ticket.assigneeUser;
+                  $scope.selectedStatusId = $scope.ticket.status.id
+              }, function errorCallback(response) {
+                  console.log(response.statusText);
+              });
+          }
+
+
+          //HTTP GET- get all statuses collection
+          function _loadStatuses() {
+              $http({
+                  method: 'GET',
+                  url: '/statuses'
+              }).then(function successCallback(response) {
+                  $scope.statuses = response.data;
+              }, function errorCallback(response) {
+                  console.log(response.statusText);
+              });
+          }
+
+          //HTTP GET- get all users collection
+          function _loadUsers() {
+              $http({
+                  method: 'GET',
+                  url: '/users'
+              }).then(function successCallback(response) {
+                  $scope.users = response.data;
+              }, function errorCallback(response) {
+                  console.log(response.statusText);
+              });
+          }
+
+          function _success(response) {
+              _refreshPageData();
+              _clearForm();
+          }
+
+          function _error(response) {
+              alert(response.data.message || response.statusText);
+          }
+
+          //Clear the form
+          function _clearForm() {
+              $scope.form.name = "";
+              $scope.form.description = "";
+              $scope.form.priority = "";
+              $scope.form.reporterUser.id = ""
+              $scope.form.assigneeUser.id = ""
+          }
+
+          $scope.startEditingStatus = function () {
+              $scope.editing = true;
+              // document.getElementById('statusSelect').click()
+              // var buttonElement = angular.element(document.querySelector('#statusSelect'));
+              // buttonElement.triggerHandler('click');
+          };
+
+          $scope.startEditingPriority = function () {
+              $scope.editingPriority = true;
+              // document.getElementById('statusSelect').click()
+              // var buttonElement = angular.element(document.querySelector('#statusSelect'));
+              // buttonElement.triggerHandler('click');
+          };
+
+          $scope.finishEditingStatus = function () {
+              $scope.editing = false;
+              $scope.ticket.status.name = $scope.statuses.filter(st => st.id === $scope.selectedStatusId)[0].name;
+
+              $scope.ticket.status.id = $scope.selectedStatusId;
+              $scope.update()
+          };
+
+          $scope.finishEditingPriority = function () {
+              $scope.editingPriority = false;
+              $scope.update()
+          };
+
+          $scope.updateTicketDescription = function () {
+              var buttonElement = angular.element(document.querySelector('#main_description'));
+              // $scope.ticket.description = buttonElement.html().replace(/<br>/g, '\n');
+              // You can also perform any additional tasks here if needed
+              $scope.update()
+          };
+
+          // $scope.getTextAreaHeight = function(content) {
+          $scope.getTextAreaHeight = function () {
+              content = $scope.ticket.description;
+              var numberOfLines = (content || '').split('\n').length;
+              return numberOfLines + 1;
+          };
+
+          $scope.toggleStatus = function (event) {
+              // event.stopImmediatePropagation();
+              $scope.clicked = true;
+              $scope.ticket.active = !$scope.ticket.active;
+              $scope.update();
+          };
+
+          // $scope.showUserSelect = function () {
+          //   $scope.showSelect = true;
+          // };
+
+          $scope.finishChoosingReporterUser = function () {
+              $scope.isReporterUserStaticShow = true;
+              $scope.ticket.reporterUser.id = $scope.users.filter(user => user.email === $scope.reporterUserEmail)[0].id;
+              $scope.reporterUserEmail = null;
+              $scope.update();
+          };
+
+          $scope.finishChoosingAssigneeUser = function () {
+              $scope.isAssigneeUserStaticShow = true;
+              $scope.ticket.assigneeUser.id = $scope.users.filter(user => user.email === $scope.assigneeUserEmail)[0].id;
+              $scope.assigneeUserEmail = null;
+              $scope.update();
+          };
+
+      });
+
+  </script>
+</head>
+<body ng-app="TicketManagement" ng-controller="TicketManagementController">
+
+<header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">Helpdesk LTD.</a>
+
+  <ul class="navbar-nav flex-row d-md-none">
+    <li class="nav-item text-nowrap">
+      <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSearch" aria-controls="navbarSearch" aria-expanded="false" aria-label="Toggle search">
+        <svg class="bi">
+          <use xlink:href="#search"/>
+        </svg>
+      </button>
+    </li>
+    <li class="nav-item text-nowrap">
+      <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <svg class="bi">
+          <use xlink:href="#list"/>
+        </svg>
+      </button>
+    </li>
+  </ul>
+
+  <div id="navbarSearch" class="navbar-search w-100 collapse">
+    <input class="form-control w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
+  </div>
+</header>
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div class="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary">
+      <div class="offcanvas-md offcanvas-end bg-body-tertiary" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="sidebarMenuLabel">Company name</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
+        </div>
+
+        <!-- left bar -->
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-body-secondary text-uppercase">
+          <span>Common sections</span>
+          <svg class="bi">
+            <use xlink:href="#plus-circle"/>
+          </svg>
+        </h6>
+
+        <div class="offcanvas-body d-md-flex flex-column p-0 overflow-y-auto">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="/projects.html">
+                <svg class="bi">
+                  <use xlink:href="#people"/>
+                </svg>
+                Projects
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="/users.html">
+                <svg class="bi">
+                  <use xlink:href="#cart"/>
+                </svg>
+                Users
+              </a>
+            </li>
+          </ul>
+
+          <hr class="my-3">
+
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-1 text-body-secondary text-uppercase">
+            <span>Project related</span>
+            <svg class="bi">
+              <use xlink:href="#plus-circle"/>
+            </svg>
+          </h6>
+
+          <ul class="nav flex-column mb-auto">
+
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="/project.html?project={{ projectId }}&projectName={{ ticket.project.name }}">
+                <svg class="bi">
+                  <use xlink:href="#people"/>
+                </svg>
+                Current project
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="/backlog.html?project={{ projectId }}&projectName={{ ticket.project.name }}">
+                <svg class="bi">
+                  <use xlink:href="#file-earmark"/>
+                </svg>
+                Backlog
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="/inactiveTickets.html?project={{ projectId }}&projectName={{ ticket.project.name }}">
+                <svg class="bi">
+                  <use xlink:href="#file-earmark"/>
+                </svg>
+                Inactive tickets
+              </a>
+            </li>
+          </ul>
+
+          <hr class="my-3">
+
+          <ul class="nav flex-column mb-auto">
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="#">
+                <svg class="bi">
+                  <use xlink:href="#gear-wide-connected"/>
+                </svg>
+                Settings
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="#">
+                <svg class="bi">
+                  <use xlink:href="#door-closed"/>
+                </svg>
+                Sign out
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Ticket Dashboard for <span class="fw-bold text-uppercase">{{ ticket.project.name}}</span></h1>
+        <button type="button" class="btn btn-lg btn-primary gap-md-3" data-bs-toggle="modal" data-bs-target="#createTicket">Create ticket</button>
+
+        <!-- modal view  -->
+        <div class="modal fade" id="createTicket" tabindex="-1" aria-labelledby="createTicketLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="createTicketLabel">Create ticket</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <div class="modal-body">
+                <h3>Add a project</h3>
+                <form ng-submit="add()">
+                  <div class="mb-3">
+                    <label for="name" class="col-form-label">Ticket name:</label>
+                    <input type="text" class="form-control" id="name" placeholder="something doesn't work" ng-model="form.name">
+                  </div>
+                  <div class="mb-3">
+                    <label for="description" class="col-form-label">Description:</label>
+                    <textarea type="text" class="form-control" id="description" placeholder="multi launch rocket system" ng-model="form.description"></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <div class="col-6">
+                      <label for="reporterUserForm">Created by: </label>
+                      <select class="form-select" name="reporterUser" id="reporterUserForm" ng-model="form.reporterUser.id">
+                        <option ng-repeat="user in users" value="{{ user.id }}">{{ user.email }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="col-6">
+                      <label for="assigneeUserForm">Created by: </label>
+                      <select class="form-select" name="assigneeUser" id="assigneeUserForm" ng-model="form.assigneeUser.id">
+                        <option ng-repeat="user in users" value="{{ user.id }}">{{ user.email }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="col-6">
+                      <label for="priority">Priority: </label>
+                      <select class="form-select" name="priority" id="priority" ng-model="form.priority">
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" ng-click="add()" data-bs-dismiss="modal">Create ticket</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <h2 class="fw-bold text-uppercase">{{ ticket.name }}</h2>
+
+      <div class="row mb-3">
+        <!-- center part        -->
+        <div class="col-md-9 themed-grid-col">
+          <div class="row">
+            <div class="col-md-6 themed-grid-col">
+              <label ng-show="isReporterUserStaticShow" class="form-label fw-bold">Reporter user:</label>
+              <div ng-show="isReporterUserStaticShow" ng-click="isReporterUserStaticShow = false; " class="form-control col-md-6"> {{ticket.reporterUser.email}}</div>
+              <label ng-hide="isReporterUserStaticShow" for="reporterUser" class="form-label fw-bold">Choosing reporter user:</label>
+              <input ng-hide="isReporterUserStaticShow" ng-model="reporterUserEmail" ng-blur="finishChoosingReporterUser()" class="form-control" list="listReporterUser" id="reporterUser" placeholder="Type to search...">
+              <datalist id="listReporterUser">
+                <option value="{{ user.email }}" ng-repeat="user in users">
+              </datalist>
+            </div>
+            <div class="col-md-6 themed-grid-col">
+              <label ng-show="isAssigneeUserStaticShow" class="form-label fw-bold">Assignee user:</label>
+              <div ng-show="isAssigneeUserStaticShow" ng-click="isAssigneeUserStaticShow = false; " class="form-control col-md-6"> {{ticket.assigneeUser.email}}</div>
+              <label ng-hide="isAssigneeUserStaticShow" for="assigneeUser" class="form-label fw-bold">Choosing assignee user:</label>
+              <input ng-hide="isAssigneeUserStaticShow" ng-model="assigneeUserEmail" ng-blur="finishChoosingAssigneeUser()" class="form-control" list="listAssigneeUser" id="assigneeUser" placeholder="Type to search...">
+              <datalist id="listAssigneeUser">
+                <option value="{{ user.email }}" ng-repeat="user in users">
+              </datalist>
+            </div>
+          </div>
+
+          <div class="text-success">
+            <hr>
+          </div>
+
+          <div class="mb-3">
+            <label class="col-form-label fw-bold" for="main_description">Description: </label>
+            <textarea class="form-control overflow-hidden" style="resize: none" id="main_description" rows="{{getTextAreaHeight()}}" cols="50" ng-model="ticket.description" ng-blur="update()"></textarea>
+          </div>
+          <div class="text-success">
+            <hr>
+          </div>
+        </div>
+
+        <!-- right navbar  -->
+        <div class="col-md-3 themed-grid-col justify-content-start gap-lg-5">
+          <p class="text-lg-start fw-bold">Status: </p>
+          <div ng-show="!editing" class="btn btn-outline-primary" ng-click="startEditingStatus()">{{ ticket.status.name }}</div>
+          <select ng-show="editing" class="form-select" ng-model="selectedStatusId" ng-options="st.id as st.name for st in statuses" ng-blur="finishEditingStatus()" ng-click="$event.stopPropagation();"></select>
+
+          <div class="text-success">
+            <hr>
+          </div>
+
+          <p class="text-lg-start fw-bold">Active: </p>
+          <button class="btn" ng-class="{ 'btn-success': (ticket.active && !hovering && !clicked) || (ticket.active && hovering && clicked) || (!ticket.active && hovering && !clicked),
+                                          'btn-danger': (!ticket.active && !hovering && !clicked) || (!ticket.active && hovering && clicked) || (ticket.active && hovering && !clicked) }" ng-mouseenter="hovering = true" ng-mouseleave="hovering = false; clicked = false" ng-click="toggleStatus($event)">
+            {{ ticket.active ? (hovering ? (clicked ? 'Active' : 'Deactivate ?') : 'Active') : (hovering ? (clicked ? 'Inactive' : 'Activate ?') : 'Inactive') }}
+          </button>
+
+          <div class="text-success">
+            <hr>
+          </div>
+
+          <p class="text-lg-start fw-bold">Priority: </p>
+          <div ng-show="!editingPriority" ng-class="{ 'btn-info': ticket.priority === 'LOW', 'btn-warning': ticket.priority === 'MEDIUM', 'btn-danger': ticket.priority === 'HIGH' }" class="btn" ng-click="startEditingPriority()">{{ ticket.priority }}</div>
+          <select ng-show="editingPriority" class="form-select" ng-model="ticket.priority" ng-blur="finishEditingPriority()" ng-click="$event.stopPropagation();">
+            <option label="LOW" value="LOW">LOW</option>
+            <option label="MEDIUM" value="MEDIUM">MEDIUM</option>
+            <option label="HIGH" value="HIGH">HIGH</option>
+          </select>
+
+          <div class="text-success">
+            <hr>
+          </div>
+
+          <p class="text-lg-start fw-bold">Date submitted: </p>
+          <div class="border-light-subtle">{{ ticket.dateSubmitted }}</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+
+    // const textarea = document.getElementById('main_description');
+    //
+    // function adjustTextareaHeight() {
+    //   textarea.style.height = 'auto'; // Reset the height to auto to calculate content height
+    //   textarea.style.height = textarea.scrollHeight + 'px'; // Set the height to the content height
+    // }
+    //
+    // // Call the adjustTextareaHeight function whenever the content changes
+    // textarea.addEventListener('input', adjustTextareaHeight);
+    //
+    // // Adjust the textarea's height initially
+    // adjustTextareaHeight();
+</script>
+
+</body>
+</html>

@@ -7,7 +7,9 @@ import org.axp.rest.UserDto;
 import org.axp.transformer.UserTransformer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,11 @@ public class UserService {
     }
 
     public CompletionStage<UserDto> getById(UUID id) {
+        if (Objects.isNull(id)) {
+            CompletableFuture<UserDto> future = new CompletableFuture<>();
+            future.complete(null);
+            return future;
+        }
         return transformer.transform(dao.findByIdAsync(id));
     }
 

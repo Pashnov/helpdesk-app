@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS helpdesk.ticket
     is_active        boolean,
     date_submitted   timestamp,
     priority         text,
-    created_by_user  uuid,
-    assigned_to_user uuid,
+    reporter_user  uuid,
+    assignee_user uuid,
     status_id        int,
     PRIMARY KEY (project_id, ticket_id)
 );
