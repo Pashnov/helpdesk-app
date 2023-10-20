@@ -2,7 +2,7 @@ package org.axp.transformer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.axp.entity.Project;
-import org.axp.rest.ProjectDto;
+import org.axp.domain.ProjectDto;
 
 import java.util.concurrent.CompletionStage;
 
@@ -10,11 +10,11 @@ import java.util.concurrent.CompletionStage;
 public class ProjectTransformer {
 
     public ProjectDto transform(Project project) {
-        return new ProjectDto(project.getId().toUpperCase(), project.getName());
+        return new ProjectDto(project.id().toUpperCase(), project.name());
     }
 
     public Project transform(ProjectDto dto) {
-        return new Project(dto.getId().toUpperCase(), dto.getName());
+        return new Project(dto.id().toUpperCase(), dto.name());
     }
 
     public CompletionStage<ProjectDto> transform(CompletionStage<Project> asyncProject) {

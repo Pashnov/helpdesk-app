@@ -11,6 +11,7 @@
   <!--    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>-->
   <!--    <script src="js/angular.min.js"></script>-->
   <script src="js/angular.js"></script>
+  <script src="js/angular-cookies.js"></script>
   <!--  <script src="js/angular-route.js"></script>-->
   <script src="js/bootstrap.bundle.js"></script>
 
@@ -41,10 +42,10 @@
   </style>
 
   <script type="text/javascript">
-      var app = angular.module("TicketManagement", []);
+      var app = angular.module("TicketManagement", ['ngCookies']);
 
       //Controller Part
-      app.controller("TicketManagementController", function ($scope, $http, $sce) {
+      app.controller("TicketManagementController", function ($scope, $http, $cookies) {
 
           var queryString = window.location.search;
 
@@ -57,6 +58,9 @@
           $scope.ticket = {};
           $scope.statuses = [];
           $scope.users = [];
+          $scope.user_id = $cookies.get('User-Id');
+          $scope.comments = [];
+          $scope.commentFormContent = '';
           $scope.projectId = projectValue;
           $scope.ticketId = ticketId;
 
@@ -86,6 +90,7 @@
           _refreshPageData();
           _loadStatuses();
           _loadUsers();
+          _loadComments();
 
           //HTTP POST methods for add ticket
           $scope.add = function () {
@@ -109,13 +114,34 @@
               };
 
               $http({
-                  method: "PUT",
+                  method: "POST",
                   url: '/tickets',
                   data: angular.toJson(data),
                   headers: {
                       'Content-Type': 'application/json'
                   }
               }).then(_success, _error);
+          };
+
+          //HTTP POST methods for add ticket
+          $scope.addComment = function () {
+              let data = {
+                  "projectId": $scope.projectId,
+                  "ticketId": $scope.ticketId,
+                  "content": $scope.commentFormContent,
+                  "user": {
+                      "id": $scope.user_id
+                  }
+              };
+
+              $http({
+                  method: "POST",
+                  url: '/comments',
+                  data: angular.toJson(data),
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              }).then(_loadComments, _error);
           };
 
           //HTTP POST methods for update ticket
@@ -188,6 +214,24 @@
               });
           }
 
+          //HTTP GET- get all users collection
+          function _loadComments() {
+              $http({
+                  method: 'GET',
+                  url: '/comments/projectId/'+projectValue+'/ticketId/'+ticketId
+              }).then(function successCallback(response) {
+                  $scope.comments = response.data;
+                  // for (let i = 0; i < $scope.comments.length; i++) {
+                  //     let cc = $scope.comments[0];
+                  //     cc.content = cc.content.replace(/\n/g, '<br>')
+                  // }
+                  // $scope.ticket.description = buttonElement.html().replace(/<br>/g, '\n');
+                  $scope.commentFormContent = '';
+              }, function errorCallback(response) {
+                  console.log(response.statusText);
+              });
+          }
+
           function _success(response) {
               _refreshPageData();
               _clearForm();
@@ -242,8 +286,8 @@
 
           // $scope.getTextAreaHeight = function(content) {
           $scope.getTextAreaHeight = function () {
-              content = $scope.ticket.description;
-              var numberOfLines = (content || '').split('\n').length;
+              let content = $scope.ticket.description;
+              let numberOfLines = (content || '').split('\n').length;
               return numberOfLines + 1;
           };
 
@@ -505,7 +549,22 @@
           <div class="text-success">
             <hr>
           </div>
+
+          <div class="mb-3">
+            <label class="col-form-label fw-bold" for="main_description">Comments: </label>
+            <textarea class="form-control overflow-hidden" style="resize: none" id="add_comment" rows="3" cols="50" ng-model="commentFormContent"></textarea>
+            <p></p>
+            <div class="btn btn-success" ng-click="addComment()">Add comment</div>
+          </div>
+          <div ng-repeat="comment in comments">
+            <hr>
+            <p>Username: <b>{{ comment.user.username }}</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Date: {{comment.dateSubmitted}}</p>
+            <textarea class="form-control overflow-hidden" style="resize: none" rows="3" cols="50" fixed ng-model="comment.content">
+            </textarea>
+          </div>
         </div>
+
+
 
         <!-- right navbar  -->
         <div class="col-md-3 themed-grid-col justify-content-start gap-lg-5">
@@ -550,18 +609,6 @@
 
 <script>
 
-    // const textarea = document.getElementById('main_description');
-    //
-    // function adjustTextareaHeight() {
-    //   textarea.style.height = 'auto'; // Reset the height to auto to calculate content height
-    //   textarea.style.height = textarea.scrollHeight + 'px'; // Set the height to the content height
-    // }
-    //
-    // // Call the adjustTextareaHeight function whenever the content changes
-    // textarea.addEventListener('input', adjustTextareaHeight);
-    //
-    // // Adjust the textarea's height initially
-    // adjustTextareaHeight();
 </script>
 
 </body>

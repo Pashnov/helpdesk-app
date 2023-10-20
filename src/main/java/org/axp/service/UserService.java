@@ -3,7 +3,7 @@ package org.axp.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.axp.dao.UserDao;
-import org.axp.rest.UserDto;
+import org.axp.domain.UserDto;
 import org.axp.transformer.UserTransformer;
 
 import java.util.List;

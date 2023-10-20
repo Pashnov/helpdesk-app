@@ -3,7 +3,7 @@ package org.axp.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.axp.dao.ProjectDao;
-import org.axp.rest.ProjectDto;
+import org.axp.domain.ProjectDto;
 import org.axp.transformer.ProjectTransformer;
 
 import java.util.List;

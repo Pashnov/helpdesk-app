@@ -2,6 +2,7 @@ package org.axp.dao.mapper;
 
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
+import org.axp.dao.CommentDao;
 import org.axp.dao.ProjectDao;
 import org.axp.dao.StatusDao;
 import org.axp.dao.TicketDao;
@@ -22,5 +23,8 @@ public interface DaoMapper {
 
     @DaoFactory
     StatusDao statusDao();
+
+    @DaoFactory
+    CommentDao commentDao();
 
 }

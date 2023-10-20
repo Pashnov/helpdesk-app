@@ -3,7 +3,7 @@ package org.axp.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.axp.dao.StatusDao;
-import org.axp.rest.TicketStatusDto;
+import org.axp.domain.TicketStatusDto;
 import org.axp.transformer.TicketStatusTransformer;
 
 import java.util.List;
@@ -46,14 +46,14 @@ public class TicketStatusService {
     public boolean update(TicketStatusDto statusDto) {
         var updated = dao.update(transformer.transform(statusDto));
         if (updated) {
-            cache.put(statusDto.getId(), statusDto);
+            cache.put(statusDto.id(), statusDto);
         }
         return updated;
     }
 
     public boolean delete(TicketStatusDto statusDto) {
         boolean deleteStatus = dao.delete(transformer.transform(statusDto));
-        cache.remove(statusDto.getId());
+        cache.remove(statusDto.id());
         return deleteStatus;
     }
 

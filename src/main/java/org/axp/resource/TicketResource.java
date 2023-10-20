@@ -10,7 +10,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.axp.rest.TicketDto;
+import org.axp.domain.TicketDto;
 import org.axp.service.TicketService;
 
 import java.util.List;
@@ -44,14 +44,14 @@ public class TicketResource {
 
     @POST
     public void add(@Valid TicketDto dto) {
-        var latestForProject = service.findLatestForProject(dto.getProject().getId());
-        var newId = Objects.isNull(latestForProject) ? 1 : latestForProject.getId() + 1;
+        var latestForProject = service.findLatestForProject(dto.project().id());
+        var newId = Objects.isNull(latestForProject) ? 1 : latestForProject.id() + 1;
         var ticketDto = service.copyWithNewId(dto, newId, true);
         var tried = 0;
         while (!service.save(ticketDto) && tried < 100) {
             System.out.println("tried: " + tried + ", dto: " + dto);
-            latestForProject = service.findLatestForProject(dto.getProject().getId());
-            newId = Objects.isNull(latestForProject) ? 1 : latestForProject.getId() + 1;
+            latestForProject = service.findLatestForProject(dto.project().id());
+            newId = Objects.isNull(latestForProject) ? 1 : latestForProject.id() + 1;
             ticketDto = service.copyWithNewId(dto, newId, true);
             tried++;
         }

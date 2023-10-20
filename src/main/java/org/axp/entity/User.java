@@ -4,28 +4,20 @@ import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
-import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
-import lombok.Data;
 
 import java.util.UUID;
 
-@Data
 @Entity
-@PropertyStrategy(mutable = false)
-public class User {
+public record User (
 
     @PartitionKey
     @CqlName("user_id")
-    private final UUID id;
+    UUID id,
 
     @ClusteringColumn
-    private final String username;
-    private final String email;
-    private final Role role;
-
-    public enum Role {
-        CUSTOMER, AGENT, ADMIN, SUPERUSER
-    }
+    String username,
+    String email,
+    Role role
 
     /*
     * a. Customer Role:
@@ -58,5 +50,11 @@ Edit users: Admins can update user information, such as usernames and emails.
 Delete users: Admins can remove user accounts from the system.
 Close tickets: Admins can close tickets on behalf of agents if needed.
     * */
+
+) {
+
+    public enum Role {
+        CUSTOMER, AGENT, ADMIN, SUPERUSER
+    }
 
 }

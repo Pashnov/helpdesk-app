@@ -10,7 +10,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.axp.rest.ProjectDto;
+import org.axp.domain.ProjectDto;
 import org.axp.service.ProjectService;
 
 import java.util.List;

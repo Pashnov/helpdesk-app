@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.axp.dao.TicketDao;
 import org.axp.entity.Ticket;
-import org.axp.rest.TicketDto;
+import org.axp.domain.TicketDto;
 import org.axp.transformer.TicketTransformer;
 
 import java.time.LocalTime;
@@ -55,9 +55,9 @@ public class TicketService {
     }
 
     public TicketDto copyWithNewId(TicketDto old, int newId, boolean isActive) {
-        return new TicketDto(old.getProject(), newId, old.getName(), old.getDescription(),
-                isActive, old.getDateSubmitted(), old.getPriority(), old.getReporterUser(),
-                old.getAssigneeUser(), old.getStatus());
+        return new TicketDto(old.project(), newId, old.name(), old.description(),
+                isActive, old.dateSubmitted(), old.priority(), old.reporterUser(),
+                old.assigneeUser(), old.status());
     }
 
 }

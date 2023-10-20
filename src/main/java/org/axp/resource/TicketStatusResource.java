@@ -11,7 +11,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.axp.rest.TicketStatusDto;
+import org.axp.domain.TicketStatusDto;
 import org.axp.service.TicketStatusService;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public class TicketStatusResource {
     }
 
 //    private ConstraintViolation<TicketStatusDto> getValidation(TicketStatusDto dto) {
-//        return ConstraintViolationImpl.forBeanValidation("Such status exists", null, null, "interpolated message", TicketStatusDto.class, dto, null, dto.getId(), null, getConstraintDescriptor(), null);
+//        return ConstraintViolationImpl.forBeanValidation("Such status exists", null, null, "interpolated message", TicketStatusDto.class, dto, null, dto.id(), null, getConstraintDescriptor(), null);
 //    }
 //
 //    private static ConstraintDescriptor<?> getConstraintDescriptor() {

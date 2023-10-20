@@ -5,10 +5,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 import org.axp.entity.Ticket;
-import org.axp.rest.ProjectDto;
-import org.axp.rest.TicketDto;
-import org.axp.rest.TicketStatusDto;
-import org.axp.rest.UserDto;
+import org.axp.domain.ProjectDto;
+import org.axp.domain.TicketDto;
+import org.axp.domain.TicketStatusDto;
+import org.axp.domain.UserDto;
 import org.axp.service.ProjectService;
 import org.axp.service.TicketStatusService;
 import org.axp.service.UserService;
@@ -37,30 +37,30 @@ public class TicketTransformer {
         if (Objects.isNull(ticket)) {
             return null;
         }
-        CompletionStage<ProjectDto> projectAsync = projectService.getById(ticket.getProjectId());
-        CompletionStage<UserDto> createdUserAsync = userService.getById(ticket.getReporterUser());
-        CompletionStage<UserDto> assignedUserAsync = userService.getById(ticket.getAssigneeUser());
-        TicketStatusDto statusDto = statusService.getById(ticket.getStatusId());
+        CompletionStage<ProjectDto> projectAsync = projectService.getById(ticket.projectId());
+        CompletionStage<UserDto> createdUserAsync = userService.getById(ticket.reporterUser());
+        CompletionStage<UserDto> assignedUserAsync = userService.getById(ticket.assigneeUser());
+        TicketStatusDto statusDto = statusService.getById(ticket.statusId());
 
         ProjectDto projectDto = projectAsync.toCompletableFuture().get(5, SECONDS);
         UserDto createdUserDto = createdUserAsync.toCompletableFuture().get(5, SECONDS);
         UserDto assignedUserDto = assignedUserAsync.toCompletableFuture().get(5, SECONDS);
 
-        return new TicketDto(projectDto, ticket.getId(), ticket.getName(),
-                ticket.getDescription(), ticket.isActive(), ticket.getDateSubmitted(),
-                ticket.getPriority().name(), createdUserDto, assignedUserDto, statusDto);
+        return new TicketDto(projectDto, ticket.id(), ticket.name(),
+                ticket.description(), ticket.active(), ticket.dateSubmitted(),
+                ticket.priority().name(), createdUserDto, assignedUserDto, statusDto);
     }
 
     public Ticket transform(TicketDto dto) {
-        Ticket.Priority priority = Ticket.Priority.valueOf(dto.getPriority());
-        UUID createdByUserId = UUID.fromString(dto.getReporterUser().getId());
-        UUID assignedToUserId = Objects.isNull(dto.getAssigneeUser()) || StringUtil.isNullOrEmpty(dto.getAssigneeUser().getId())
-                                                ? null : UUID.fromString(dto.getAssigneeUser().getId());
-        LocalDateTime ldt = Objects.requireNonNullElse(dto.getDateSubmitted(), LocalDateTime.now());
+        Ticket.Priority priority = Ticket.Priority.valueOf(dto.priority());
+        UUID createdByUserId = UUID.fromString(dto.reporterUser().id());
+        UUID assignedToUserId = Objects.isNull(dto.assigneeUser()) || StringUtil.isNullOrEmpty(dto.assigneeUser().id())
+                                                ? null : UUID.fromString(dto.assigneeUser().id());
+        LocalDateTime ldt = Objects.requireNonNullElse(dto.dateSubmitted(), LocalDateTime.now());
 
-        return new Ticket(dto.getProject().getId(), dto.getId(), dto.getName(),
-                            dto.getDescription(), dto.isActive(), ldt, priority, createdByUserId,
-                                assignedToUserId, dto.getStatus().getId());
+        return new Ticket(dto.project().id(), dto.id(), dto.name(),
+                            dto.description(), dto.active(), ldt, priority, createdByUserId,
+                                assignedToUserId, dto.status().id());
     }
 
 }

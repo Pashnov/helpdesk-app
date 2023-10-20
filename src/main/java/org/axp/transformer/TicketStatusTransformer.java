@@ -2,17 +2,17 @@ package org.axp.transformer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.axp.entity.TicketStatus;
-import org.axp.rest.TicketStatusDto;
+import org.axp.domain.TicketStatusDto;
 
 @ApplicationScoped
 public class TicketStatusTransformer {
 
     public TicketStatusDto transform(TicketStatus status) {
-        return new TicketStatusDto(status.getId(), status.getName(), status.getDescription());
+        return new TicketStatusDto(status.id(), status.name(), status.description());
     }
 
     public TicketStatus transform(TicketStatusDto dto) {
-        return new TicketStatus(dto.getId(), dto.getName(), dto.getDescription());
+        return new TicketStatus(dto.id(), dto.name(), dto.description());
     }
 
 }
