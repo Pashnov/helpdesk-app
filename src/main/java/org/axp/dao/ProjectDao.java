@@ -15,19 +15,14 @@ public interface ProjectDao {
 
     @Update
     void update(Project project);
-
     @Select
     PagingIterable<Project> findAll();
-
     @Select
     Project findById(String projectId);
-
     @Select
     CompletionStage<Project> findByIdAsync(String projectId);
-
     @Insert
     void save(Project project);
-
     @Delete(ifExists = true)
     boolean delete(Project project);
 

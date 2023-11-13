@@ -1,6 +1,7 @@
 package org.axp.resource;
 
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -26,9 +27,9 @@ public class CommentResource {
     public List<CommentDto> getAllByIds(String projectId, int ticketId) {
         return commentService.findAllByIds(projectId, ticketId);
     }
-
+    
     @POST
-    public void add(CommentDto comment) {
+    public void add(@Valid CommentDto comment) {
         commentService.save(comment);
     }
 

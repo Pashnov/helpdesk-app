@@ -296,6 +296,12 @@
               $scope.clicked = true;
               $scope.ticket.active = !$scope.ticket.active;
               $scope.update();
+              if ($scope.ticket.active) {
+                $scope.commentFormContent = "The ticket was reopened";
+              } else {
+                $scope.commentFormContent = "The ticket was closed";
+              }
+              $scope.addComment()
           };
 
           // $scope.showUserSelect = function () {
@@ -552,9 +558,10 @@
 
           <div class="mb-3">
             <label class="col-form-label fw-bold" for="main_description">Comments: </label>
-            <textarea class="form-control overflow-hidden" style="resize: none" id="add_comment" rows="3" cols="50" ng-model="commentFormContent"></textarea>
+            <textarea class="form-control overflow-hidden" ng-disabled="!ticket.active" style="resize: none" id="add_comment" rows="3" cols="50" ng-model="commentFormContent"></textarea>
             <p></p>
-            <div class="btn btn-success" ng-click="addComment()">Add comment</div>
+            <button class="btn btn-success" ng-click="addComment()" ng-disabled="!ticket.active">Add comment</button>
+<!--            <button class="btn btn-success" ng-click="addComment()" disabled>Add comment</button>-->
           </div>
           <div ng-repeat="comment in comments">
             <hr>

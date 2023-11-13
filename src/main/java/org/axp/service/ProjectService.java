@@ -15,26 +15,21 @@ public class ProjectService {
 
     @Inject
     ProjectDao dao;
-
     @Inject
     ProjectTransformer transformer;
 
     public void save(ProjectDto projectDto) {
         dao.save(transformer.transform(projectDto));
     }
-
     public List<ProjectDto> getAll() {
         return dao.findAll().all().stream().map(transformer::transform).collect(Collectors.toList());
     }
-
-    public void update(ProjectDto user) {
-        dao.update(transformer.transform(user));
+    public void update(ProjectDto projectDto) {
+        dao.update(transformer.transform(projectDto));
     }
-
-    public boolean delete(ProjectDto user) {
-        return dao.delete(transformer.transform(user));
+    public boolean delete(ProjectDto projectDto) {
+        return dao.delete(transformer.transform(projectDto));
     }
-
     public CompletionStage<ProjectDto> getById(String projectId) {
         return transformer.transform(dao.findByIdAsync(projectId));
     }
