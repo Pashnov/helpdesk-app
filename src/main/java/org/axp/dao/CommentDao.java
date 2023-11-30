@@ -7,11 +7,16 @@ import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
 import org.axp.entity.Comment;
 
+import java.util.Optional;
+
 @Dao
 public interface CommentDao {
 
     @Select
     PagingIterable<Comment> findAllByIds(String projectId, int ticketId);
+
+    @Select
+    Optional<Comment> findLastComment(String projectId, int ticketId);
 
     @Insert
     void save(Comment comment);
